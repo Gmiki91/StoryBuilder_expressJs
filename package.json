@@ -1,0 +1,32 @@
+{
+  "name": "sb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "express": "nodemon -r dotenv/config app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@mailchimp/mailchimp_transactional": "^1.0.47",
+    "aws-sdk": "^2.1073.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^12.0.3",
+    "express": "^4.17.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^6.1.0",
+    "google-auth-library": "^7.11.0",
+    "helmet": "^5.0.1",
+    "hpp": "^0.2.3",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^4.2.2",
+    "mongoose": "^6.1.4",
+    "nodemailer": "^6.7.2",
+    "nodemailer-express-handlebars": "^4.0.0",
+    "serverless-http": "^2.7.0",
+    "wilson-score-interval": "^2.1.0",
+    "xss-clean": "^0.1.1"
+  }
+}
