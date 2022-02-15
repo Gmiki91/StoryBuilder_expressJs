@@ -14,7 +14,10 @@ const storySchema = mongoose.Schema({
     updatedAt: Date,
     openEnded: Boolean,
     pageIds: [String],
-    pendingPageIds: [String]
+    pendingPageIds: [String],
+    word1:String,
+    word2:String,
+    word3:String,
 }, { collection: 'stories' });
 
 module.exports = mongoose.model('Story', storySchema);

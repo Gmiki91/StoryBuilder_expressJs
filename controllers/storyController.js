@@ -18,11 +18,14 @@ exports.createStory = catchAsync(async (req, res, next) => {
         updatedAt: new Date(),
         openEnded: req.body.openEnded,
         pageIds: [req.body.pageId],
-        pendingPageIds: []
+        pendingPageIds: [],
+        word1: req.body.word1,
+        word2: req.body.word2,
+        word3: req.body.word3
     });
     res.status(201).json({
         status: 'success',
-        story: mappedStory(story)
+        storyId: story._id
     })
 })
 
@@ -80,6 +83,9 @@ exports.rateStory = catchAsync(async (req, res, next) => {
 exports.addPage = catchAsync(async (req, res, next) => {
     const { story, pageId, pageRatings } = req.body;
     story.pendingPageIds = []; //removing all pending pages;
+    story.word1=null;
+    story.word2=null;
+    story.word3=null;
     story.pageIds.push(pageId);
 
     if (pageRatings.length > 0) {
@@ -103,6 +109,18 @@ exports.addPendingPage = catchAsync(async (req, res, next) => {
         status: 'success',
         story: mappedStory(story)
     })
+})
+
+exports.addWords= catchAsync(async (req, res, next) => {
+    const story = await Story.findById(req.body.storyId);
+    story.word1=req.body.word1;
+    story.word2=req.body.word2;
+    story.word3=req.body.word3;
+
+    await story.save();
+    res.status(201).json({ 
+        status: 'success'
+    });
 })
 
 exports.removePendingPage = catchAsync(async (req, res, next) => {
