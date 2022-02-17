@@ -10,23 +10,23 @@ router.route('/')
     .post(authCheck, storyController.createStory)
     .put(authCheck, storyController.addWords);
 
-router.route('/:id')
+router.route('/one/:id')
     .get(storyController.getStory)
     .put(authCheck, storyController.editStory)
     .delete(authCheck, storyController.deleteStory);
-
+router.route('/many/:authorId')
+    .get(authCheck, storyController.getStoryDataByAuthor)
+    .patch(authCheck, storyController.closeStoriesByAuthor);
 router.route('/pendingPage')
     .post(authCheck, tributeComplete, storyController.addPendingPage)
     .put(authCheck, storyController.ownStoryCheck, storyController.removePendingPage);
 
-router.route('/all/:authorId')
-    .get(authCheck, storyController.getStoryDataByAuthor)
-    .patch(authCheck, storyController.closeStoriesByAuthor);
+
 
 router.get('/tribute/data', authCheck, langInfo, storyController.getTributeData);
 router.post('/all', authCheck, storyController.getStories);
-router.put('/rate', authCheck,  storyController.rateStory);
-router.put('/level', authCheck, storyLevel,storyController.levelChange);
+router.put('/rate', authCheck, storyController.rateStory);
+router.put('/level', authCheck, storyLevel, storyController.levelChange);
 router.put('/page',
     authCheck,
     storyLevel,

@@ -163,7 +163,6 @@ exports.addPage = catchAsync(async (req, res, next) => {
     story.level = req.body.lvlAvg;
 
     await story.save();
-
     res.status(200).json({
         status: 'success',
         story: mappedStory(story),
@@ -196,7 +195,7 @@ exports.addWords = catchAsync(async (req, res, next) => {
 })
 
 exports.removePendingPage = catchAsync(async (req, res, next) => {
-    const story = req.body.story;
+    const {story} = req.body;
     const index = story.pendingPageIds.indexOf(req.body.pageId);
     story.pendingPageIds.splice(index, 1);
     await story.save();
