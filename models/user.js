@@ -21,11 +21,12 @@ const user = mongoose.Schema({
     active: {type: Boolean,default: true},
     confirmed: { type: Boolean, default: false },
     numberOfTablets: { type: Number, default: 0 },
+    markedStoryId: String,
+    markedStoryAt: Date,
     lastActivity: Date,
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
-    markedStoryId: String,
     dailyCompleted: Boolean,
     favoriteStoryIdList: [String],
 }, { collection: 'users' })

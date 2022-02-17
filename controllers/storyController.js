@@ -6,24 +6,28 @@ const wilson = require('wilson-score-interval');
 const saveVote = require('../utils/vote');
 
 exports.createStory = catchAsync(async (req, res, next) => {
+    const { title, description, language, level, user, pageId, word1, word2, word3 } = req.body;
     const story = await Story.create({
-        title: req.body.title,
-        description: req.body.description,
-        language: req.body.language,
-        level: stringToNum(req.body.level),
-        authorId: req.body.user._id,
-        authorName: req.body.user.name,
+        title: title,
+        description: description,
+        language: language,
+        level: stringToNum(level),
+        authorId: user._id,
+        authorName: user.name,
         ratings: [],
         upVotes: 0,
         ratingAvg: 0,
         updatedAt: new Date(),
-        openEnded: req.body.openEnded,
-        pageIds: [req.body.pageId],
+        pageIds: [pageId],
         pendingPageIds: [],
-        word1: req.body.word1,
-        word2: req.body.word2,
-        word3: req.body.word3
+        word1: word1,
+        word2: word2,
+        word3: word3
     });
+    if (!user.confirmed) {
+        user.confirmed = true
+        user.save();
+    };
     res.status(201).json({
         status: 'success',
         storyId: story._id
@@ -49,19 +53,23 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
     }
     let story = await Story.findById(user.markedStoryId);
     if (!story || timesUp) {
-        const { langInfo } = req.body; //{ language: 'English', level: 2, ratio: '100' } ]
-        const randomLang = langInfo[Math.floor(Math.random() * langInfo.length)]
-        const stories = await Story.find({ language: randomLang.language });
-        const userLevel = randomLang.level;
+        const { langInfo } = req.body;
+        const { level, language } = langInfo[Math.floor(Math.random() * langInfo.length)];
 
+        const stories = await Story.find({ language, authorId: { $ne: user._id } });
+
+        const filterStories = () => stories.filter(story => story.level < level + count && story.level > level - count);
         let count = 0.5;
-        const filterStories = () => stories.filter(story => story.level < userLevel + count && story.level > userLevel - count);
-        let filteredStories = filterStories();
-        while (!filteredStories || count < 6) {
+        let filteredStories = [];
+        
+        while (filteredStories.length === 0 && count < 6) {
             filteredStories = filterStories();
             count++;
         }
-        if (!filteredStories) return next(new AppError('Learn another language ffs!', 500));
+
+        if (!filteredStories) filteredStories = await Story.find({ language });
+        if (!filteredStories) filteredStories = await Story.find();
+        if (!filteredStories) return next(new AppError('Something went wrong, no stories found at all.', 500));
 
         story = filteredStories[Math.floor(Math.random() * filteredStories.length)];
         user.markedStoryId = story._id;
@@ -78,7 +86,7 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
 })
 
 exports.getStories = catchAsync(async (req, res, next) => {
-    const { sortBy, sortDirection, storyName, languages, levels, openEnded, from, user } = req.body;
+    const { sortBy, sortDirection, storyName, languages, levels, open, from, user } = req.body;
     const query = {};
     const sortObject = {};
     if (from === 'own') query['authorId'] = user._id
@@ -87,7 +95,7 @@ exports.getStories = catchAsync(async (req, res, next) => {
     if (storyName.length > 2) query['title'] = { $regex: new RegExp(`${storyName}`, 'i') };
     if (languages.length > 0) query['language'] = languages;
     if (levels.length > 0) query['level'] = levels;
-    if (openEnded !== 'both') query['openEnded'] = openEnded;
+    if (open !== 'both') query['open'] = open;
     sortObject[sortBy] = sortDirection;
     const result = await Story
         .find(query)
@@ -137,7 +145,7 @@ exports.addPage = catchAsync(async (req, res, next) => {
     story.word2 = null;
     story.word3 = null;
     story.pageIds.push(pageId);
-    
+
     if (pageRatings.length > 0) {
         story.ratings.push(pageRatings);
         updateRateValues(story);
@@ -149,7 +157,7 @@ exports.addPage = catchAsync(async (req, res, next) => {
     res.status(200).json({
         status: 'success',
         story: mappedStory(story),
-        
+
     })
 })
 
@@ -160,8 +168,8 @@ exports.addPendingPage = catchAsync(async (req, res, next) => {
     await story.save();
     res.status(200).json({
         status: 'success',
-        story: mappedStory(story), 
-        tributeCompleted:req.body.tributeCompleted
+        story: mappedStory(story),
+        tributeCompleted: req.body.tributeCompleted
     })
 })
 
@@ -207,8 +215,8 @@ exports.closeStoriesByAuthor = catchAsync(async (req, res, next) => {
     const { authorId } = req.params;
     const stories = await Story.find({ authorId });
     stories.forEach(story => {
-        if (story.openEnded) {
-            story.openEnded = false;
+        if (story.open) {
+            story.open = false;
             try {
                 story.save();
             } catch (err) { return next(new AppError('Something went wrong', 500)); }

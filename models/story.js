@@ -12,7 +12,7 @@ const storySchema = mongoose.Schema({
     upVotes:Number,
     ratingAvg:Number,
     updatedAt: Date,
-    openEnded: Boolean,
+    open: {type:Boolean, default: true},
     pageIds: [String],
     pendingPageIds: [String],
     word1:String,

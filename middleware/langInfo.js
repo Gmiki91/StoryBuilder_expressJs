@@ -4,7 +4,6 @@ const Page = require('../models/page');
 module.exports = catchAsync(async (req, res, next) => {
     
     const authorId =  req.params.authorId || req.body.user._id; //first case is Stats, second is Tribute route
-    console.log(authorId);
     const pages = await Page.find({ authorId });
     const languageData = pages.reduce((groups, page) => {
         let count = groups[page.language]?.count || 0;
@@ -16,7 +15,6 @@ module.exports = catchAsync(async (req, res, next) => {
         return groups;
     }, {});
 
-    console.log("languageData ",languageData)
     const langInfo = [];
     Object.keys(languageData).forEach(lang => {
     
@@ -26,7 +24,6 @@ module.exports = catchAsync(async (req, res, next) => {
             ratio: (languageData[lang].count / pages.length * 100).toFixed()
         })
     });
-    console.log("langinfo ",langInfo)
     req.body.langInfo = langInfo;
     next();
 });
