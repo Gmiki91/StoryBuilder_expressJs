@@ -24,8 +24,8 @@ router.route('/all/:authorId')
 
 router.get('/tribute/data', authCheck, langInfo, storyController.getTributeData);
 router.post('/all', authCheck, storyController.getStories);
-router.put('/rate', authCheck, storyLevel, storyController.rateStory);
-router.put('/level', authCheck, storyController.levelChange);
+router.put('/rate', authCheck,  storyController.rateStory);
+router.put('/level', authCheck, storyLevel,storyController.levelChange);
 router.put('/page',
     authCheck,
     storyLevel,

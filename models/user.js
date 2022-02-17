@@ -22,7 +22,7 @@ const user = mongoose.Schema({
     confirmed: { type: Boolean, default: false },
     numberOfTablets: { type: Number, default: 0 },
     markedStoryId: String,
-    markedStoryAt: Date,
+    markedStoryAt: Number,
     lastActivity: Date,
     passwordChangedAt: Date,
     passwordResetToken: String,
@@ -32,9 +32,9 @@ const user = mongoose.Schema({
 }, { collection: 'users' })
 
 user.pre('save', async function (next) {
+    user.lastActivity=Date.now();
     // Only run this function if password was actually modified
     if (!this.isModified('password')) return next();
-
     // Hash the password with cost of 12
     this.password = await bcrypt.hash(this.password, 12);
     next();

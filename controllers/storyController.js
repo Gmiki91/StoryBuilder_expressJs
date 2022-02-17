@@ -61,7 +61,7 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
         const filterStories = () => stories.filter(story => story.level < level + count && story.level > level - count);
         let count = 0.5;
         let filteredStories = [];
-        
+
         while (filteredStories.length === 0 && count < 6) {
             filteredStories = filterStories();
             count++;
@@ -75,7 +75,7 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
         user.markedStoryId = story._id;
         user.markedStoryAt = Date.now();
         user.dailyCompleted = false;
-        user.save();
+        await user.save();
     }
 
     res.status(200).json({
@@ -153,7 +153,9 @@ exports.addPage = catchAsync(async (req, res, next) => {
 
     story.updatedAt = Date.now();
     story.level = req.body.lvlAvg;
+
     await story.save();
+
     res.status(200).json({
         status: 'success',
         story: mappedStory(story),
