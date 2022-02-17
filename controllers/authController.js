@@ -87,14 +87,13 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     const user = await User.findOne({ email });
     let message;
     let subject;
-    let userName = '';
     if (user) {
         const resetToken = user.createPasswordResetToken();
         //const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
         const resetUrl = `https://8t84fca4l8.execute-api.eu-central-1.amazonaws.com/dev/api/users/resetPassword/${resetToken}`;
         subject = 'Your password reset token (valid for 10 minutes) - StoryBuilder';
-        userName = `Hello ${user.name}!`;
         message = `
+        Hello ${user.name}!
         A password reset event has been triggered. The password reset window is limited to 10 minutes.
         To complete the password reset process, visit the following link:
         ${resetUrl}`;
@@ -109,7 +108,6 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     try {
         await sendEmail({
             email,
-            userName,
             subject,
             message
         });
@@ -123,6 +121,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
             user.passwordResetExpires = undefined;
             await user?.save();
         }
+        console.log(err);
         return next(new AppError('There was an error sending the email. Try again later!', 500));
     }
 })

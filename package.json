@@ -24,7 +24,6 @@
     "mongodb": "^4.2.2",
     "mongoose": "^6.1.4",
     "nodemailer": "^6.7.2",
-    "nodemailer-express-handlebars": "^4.0.0",
     "serverless-http": "^2.7.0",
     "wilson-score-interval": "^2.1.0",
     "xss-clean": "^0.1.1"
