@@ -46,15 +46,15 @@ module.exports = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
     // if (process.env.NODE_ENV === 'production') {
-        let error = { ...err };
-        if (err.name === 'CastError') error = handleCastErrorDB(err);
-        if(err.name==='ValidationError') error=handleValidationErrodDB(err);
-        if(err.name==='JsonWebTokenError') err=new AppError('Invalid token, please log in again!', 401);
-        if(err.name==='TokenExpriedError') err=new AppError('Token expired, please log in again!', 401);
-        if(err.code===11000) error=handleDuplicateFieldsDB(err);
-        sendErrorProd(error, res);
+        // let error = { ...err };
+        // if (err.name === 'CastError') error = handleCastErrorDB(err);
+        // if(err.name==='ValidationError') error=handleValidationErrodDB(err);
+        // if(err.name==='JsonWebTokenError') err=new AppError('Invalid token, please log in again!', 401);
+        // if(err.name==='TokenExpriedError') err=new AppError('Token expired, please log in again!', 401);
+        // if(err.code===11000) error=handleDuplicateFieldsDB(err);
+        // sendErrorProd(error, res);
     // } else if (process.env.NODE_ENV === 'development') {
-        // sendErrorDev(err, res);
+        sendErrorDev(err, res);
     // }
 
 }

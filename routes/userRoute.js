@@ -10,11 +10,8 @@ router.post('/loginGoogle', authController.loginGoogle);
 
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:resetToken', authController.resetPassword);
-
 router.patch('/updatePassword', authCheck, authController.updatePassword);
 
-router.get('/user/:id', authCheck, userController.getUser)
-router.get('/lekvar', userController.getLekvar)
 router
     .route('/')
     .get(authCheck, userController.getMe)
@@ -25,4 +22,6 @@ router
     .post(authCheck, userController.addFavorite)
     .put(authCheck, userController.removeFavorite);
 
+router.get('/user/:id', authCheck, userController.getUser)
+router.get('/lekvar', userController.getLekvar)
 module.exports = router;

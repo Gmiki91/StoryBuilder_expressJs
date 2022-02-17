@@ -17,11 +17,12 @@ exports.getUser=catchAsync(async (req,res,next)=>{
             _id:user._id,
             name:user.name,
             email:user.email,
-            lastLoggedIn:user.lastLoggedIn,
+            lastActivity:user.lastActivity,
             active:user.active
         }
     })
 })
+
 exports.deleteMe = catchAsync(async (req, res, next) => {
     const user = await User.findById(req.body.user._id).select(['+password', 'active']);
     const { deletePassword } = req.body;

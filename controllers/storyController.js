@@ -1,5 +1,6 @@
 const Story = require('../models/story');
 const catchAsync = require('../utils/catchAsync');
+const { stringToNum, numToString } = require('../utils/levelMapping');
 const AppError = require('../utils/appError');
 const wilson = require('wilson-score-interval');
 const saveVote = require('../utils/vote');
@@ -9,7 +10,7 @@ exports.createStory = catchAsync(async (req, res, next) => {
         title: req.body.title,
         description: req.body.description,
         language: req.body.language,
-        level: req.body.level,
+        level: stringToNum(req.body.level),
         authorId: req.body.user._id,
         authorName: req.body.user.name,
         ratings: [],
@@ -34,6 +35,45 @@ exports.getStory = catchAsync(async (req, res, next) => {
     res.status(200).json({
         status: 'success',
         story: mappedStory(story)
+    })
+})
+
+exports.getTributeData = catchAsync(async (req, res, next) => {
+    const { user } = req.body;
+    const timesUp = user.markedStoryAt + 24 * 60 * 60 * 1000 < Date.now();
+    if (user.dailyCompleted && !timesUp) {
+        return res.status(200).json({
+            status: 'success',
+            markedStoryAt: user.markedStoryAt
+        });
+    }
+    let story = await Story.findById(user.markedStoryId);
+    if (!story || timesUp) {
+        const { langInfo } = req.body; //{ language: 'English', level: 2, ratio: '100' } ]
+        const randomLang = langInfo[Math.floor(Math.random() * langInfo.length)]
+        const stories = await Story.find({ language: randomLang.language });
+        const userLevel = randomLang.level;
+
+        let count = 0.5;
+        const filterStories = () => stories.filter(story => story.level < userLevel + count && story.level > userLevel - count);
+        let filteredStories = filterStories();
+        while (!filteredStories || count < 6) {
+            filteredStories = filterStories();
+            count++;
+        }
+        if (!filteredStories) return next(new AppError('Learn another language ffs!', 500));
+
+        story = filteredStories[Math.floor(Math.random() * filteredStories.length)];
+        user.markedStoryId = story._id;
+        user.markedStoryAt = Date.now();
+        user.dailyCompleted = false;
+        user.save();
+    }
+
+    res.status(200).json({
+        status: 'success',
+        story: mappedStory(story),
+        markedStoryAt: user.markedStoryAt
     })
 })
 
@@ -79,24 +119,37 @@ exports.rateStory = catchAsync(async (req, res, next) => {
     })
 })
 
+exports.levelChange = catchAsync(async (req, res, next) => {
+    const story = await Story.findById(req.body.storyId);
+    if (!story) return next(new AppError(`No story found with ID ${req.body.storyId}`, 404))
+    story.level = req.body.lvlAvg;
+    await story.save();
+    res.status(201).json({
+        status: 'success'
+    })
+})
+
 
 exports.addPage = catchAsync(async (req, res, next) => {
     const { story, pageId, pageRatings } = req.body;
     story.pendingPageIds = []; //removing all pending pages;
-    story.word1=null;
-    story.word2=null;
-    story.word3=null;
+    story.word1 = null;
+    story.word2 = null;
+    story.word3 = null;
     story.pageIds.push(pageId);
-
+    
     if (pageRatings.length > 0) {
         story.ratings.push(pageRatings);
         updateRateValues(story);
     }
+
     story.updatedAt = Date.now();
+    story.level = req.body.lvlAvg;
     await story.save();
     res.status(200).json({
         status: 'success',
-        story: mappedStory(story)
+        story: mappedStory(story),
+        
     })
 })
 
@@ -107,18 +160,19 @@ exports.addPendingPage = catchAsync(async (req, res, next) => {
     await story.save();
     res.status(200).json({
         status: 'success',
-        story: mappedStory(story)
+        story: mappedStory(story), 
+        tributeCompleted:req.body.tributeCompleted
     })
 })
 
-exports.addWords= catchAsync(async (req, res, next) => {
+exports.addWords = catchAsync(async (req, res, next) => {
     const story = await Story.findById(req.body.storyId);
-    story.word1=req.body.word1;
-    story.word2=req.body.word2;
-    story.word3=req.body.word3;
+    story.word1 = req.body.word1;
+    story.word2 = req.body.word2;
+    story.word3 = req.body.word3;
 
     await story.save();
-    res.status(201).json({ 
+    res.status(201).json({
         status: 'success'
     });
 })
@@ -181,7 +235,6 @@ const updateRateValues = (story) => {
     story.ratingAvg = left;
 }
 
-
 const mappedStory = story => {
     const { ratings, ...props } = story.toObject();
     return ({
@@ -190,7 +243,8 @@ const mappedStory = story => {
             positive: story.upVotes,
             total: story.ratings.length,
             average: getAverageRateInText(story.ratingAvg)
-        }
+        },
+        level: numToString(story.level)
     });
 }
 

@@ -7,6 +7,7 @@ const pageSchema = mongoose.Schema({
     authorName:String,
     levels:  [{ userId: String, rate: Number }],
     ratings: [Rating],
+    archived:{type:Boolean, default:false}
 }, { collection: 'pages' });
 
 module.exports = mongoose.model('Page', pageSchema);

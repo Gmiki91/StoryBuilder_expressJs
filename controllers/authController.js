@@ -18,6 +18,7 @@ exports.signup = catchAsync(async (req, res, next) => {
         email: req.body.email,
         password: req.body.password,
         favoriteStoryIdList: [],
+        lastActivity : new Date()
     });
     const token = signToken(user._id);
     res.status(201).json({
@@ -31,11 +32,12 @@ exports.login = catchAsync(async (req, res, next) => {
     const query = userInput.includes('@') ? { email: userInput } : { name: userInput };
     const user = await User.findOne(query).select('+password');
     if (!user || !(await user.correctPassword(password, user.password))) return next(new AppError(`Incorrect login credentials.`, 401));
-    user.lastLoggedIn = new Date();
+    user.lastActivity = new Date();
     user.save();
     const token = signToken(user._id);
     res.status(200).json({
         status: 'success',
+        confirmed:user.confirmed,
         token
     })
 })

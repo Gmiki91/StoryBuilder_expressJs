@@ -54,7 +54,7 @@ app.use(globalErrorHandler)
 //const server = app.listen(port, () => console.log(`Express server listening on port ${port}`))
 
 mongoose.connect(
-    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PW}@cluster0.hakyf.mongodb.net/storybuilder?retryWrites=true&w=majority`,
+    `mongodb+srv://miki:ym44lbXwDms6T62K@cluster0.hakyf.mongodb.net/storybuilder?retryWrites=true&w=majority`,
     { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         console.log("Connected to database!");

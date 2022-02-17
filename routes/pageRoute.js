@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pageController = require('../controllers/pageController');
 const authCheck = require('../middleware/authCheck');
+const langInfo = require('../middleware/langInfo');
 
 router.post('/', authCheck, pageController.createPage);
 
@@ -14,7 +15,7 @@ router.route('/many/:ids')
 
 router.put('/rateLevel', authCheck, pageController.rateLevel);
 router.put('/rateText', authCheck, pageController.rateText);
-router.get('/all/:authorId', authCheck, pageController.getPageDataByAuthor);
+router.get('/all/:authorId', authCheck,langInfo, pageController.getPageDataByAuthor);
 
 
 module.exports = router;
