@@ -12,6 +12,7 @@ router.route('/')
 
 router.route('/:id')
     .get(storyController.getStory)
+    .put(authCheck, storyController.editStory)
     .delete(authCheck, storyController.deleteStory);
 
 router.route('/pendingPage')
