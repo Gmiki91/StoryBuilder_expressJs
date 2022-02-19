@@ -3,8 +3,8 @@ const router = express.Router();
 const storyController = require('../controllers/storyController');
 const authCheck = require('../middleware/authCheck');
 const tributeComplete = require('../middleware/tributeComplete');
-const storyLevel = require('../middleware/storyLevel');
 const langInfo = require('../middleware/langInfo');
+const ownStoryCheck = require('../middleware/ownStoryCheck');
 
 router.route('/')
     .post(authCheck, storyController.createStory)
@@ -19,19 +19,15 @@ router.route('/many/:authorId')
     .patch(authCheck, storyController.closeStoriesByAuthor);
 router.route('/pendingPage')
     .post(authCheck, tributeComplete, storyController.addPendingPage)
-    .put(authCheck, storyController.ownStoryCheck, storyController.removePendingPage);
+    .put(authCheck, ownStoryCheck, storyController.removePendingPage);
 
 
 
 router.get('/tribute/data', authCheck, langInfo, storyController.getTributeData);
 router.post('/all', authCheck, storyController.getStories);
 router.put('/rate', authCheck, storyController.rateStory);
-router.put('/level', authCheck, storyLevel, storyController.levelChange);
-router.put('/page',
-    authCheck,
-    storyLevel,
-    storyController.ownStoryCheck,
-    storyController.addPage);
+router.put('/level', authCheck, storyController.levelChange);
+router.put('/page',authCheck, ownStoryCheck, storyController.addPage);
 
 
 

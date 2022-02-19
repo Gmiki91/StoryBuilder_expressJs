@@ -1,20 +1,26 @@
 exports.numToString = (rate) => {
+    // if (rate < 1.5) return 'A';
+    // if (rate >= 1.5 && rate < 2.5) return 'A+';
+    // if (rate >= 2.5 && rate < 3.5) return 'B';
+    // if (rate >= 3.5 && rate < 4.5) return 'B+';
+    // if (rate >= 4.5 && rate < 5.5) return 'C';
+    // if (rate >= 5.5) return 'N';
     if (rate < 1.5) return 'A';
-    if (rate >= 1.5 && rate < 2.5) return 'A+';
-    if (rate >= 2.5 && rate < 3.5) return 'B';
-    if (rate >= 3.5 && rate < 4.5) return 'B+';
-    if (rate >= 4.5 && rate < 5.5) return 'C';
-    if (rate >= 5.5) return 'N';
+    if (rate >= 1.5 && rate < 2.5) return 'B';
+    if (rate >= 2.5) return 'C';
 }
 
 exports.stringToNum = (rate) => {
     switch (rate) {
+        // case 'A': return 1;
+        // case 'A+': return 2;
+        // case 'B': return 3;
+        // case 'B+': return 4;
+        // case 'C': return 5;
+        // case 'N': return 6;
         case 'A': return 1;
-        case 'A+': return 2;
-        case 'B': return 3;
-        case 'B+': return 4;
-        case 'C': return 5;
-        case 'N': return 6;
+        case 'B': return 2;
+        case 'C': return 3;
         default: return '?';
     }
 }
@@ -22,11 +28,11 @@ exports.stringToNum = (rate) => {
 exports.getTextByCode = (code) => {
     switch (code) {
         case 'A': return 'Beginner'
-        case 'A+': return 'Lower-intermediate'
+        // case 'A+': return 'Lower-intermediate'
         case 'B': return 'Intermediate'
-        case 'B+': return 'Upper-intermediate'
+        // case 'B+': return 'Upper-intermediate'
         case 'C': return 'Advanced'
-        case 'N': return 'Native'
+        // case 'N': return 'Native'
         default: return '?'
     }
 }

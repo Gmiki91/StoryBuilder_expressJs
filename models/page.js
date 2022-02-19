@@ -5,7 +5,6 @@ const pageSchema = mongoose.Schema({
     language: String,
     authorId: String,
     authorName:String,
-    levels:  [{ userId: String, rate: Number }],
     ratings: [Rating],
     archived:{type:Boolean, default:false}
 }, { collection: 'pages' });

@@ -1,6 +1,6 @@
 const Story = require('../models/story');
 const catchAsync = require('../utils/catchAsync');
-const { stringToNum, numToString } = require('../utils/levelMapping');
+const { stringToNum, numToString, getTextByCode } = require('../utils/levelMapping');
 const AppError = require('../utils/appError');
 const wilson = require('wilson-score-interval');
 const saveVote = require('../utils/vote');
@@ -11,7 +11,7 @@ exports.createStory = catchAsync(async (req, res, next) => {
         title: title,
         description: description,
         language: language,
-        level: stringToNum(level),
+        levels: [{ userId: user._id, rate: stringToNum(level) }],
         authorId: user._id,
         authorName: user.name,
         ratings: [],
@@ -138,10 +138,13 @@ exports.rateStory = catchAsync(async (req, res, next) => {
 exports.levelChange = catchAsync(async (req, res, next) => {
     const story = await Story.findById(req.body.storyId);
     if (!story) return next(new AppError(`No story found with ID ${req.body.storyId}`, 404))
-    story.level = req.body.lvlAvg;
+    const rate = stringToNum(req.body.rate);
+    const vote = story.levels.find(level => level.userId === req.body.user._id.toString());
+    vote ? vote.rate = rate : story.levels.push({ userId: req.body.user._id, rate: rate });
     await story.save();
     res.status(201).json({
-        status: 'success'
+        status: 'success',
+        story: mappedStory(story)
     })
 })
 
@@ -160,7 +163,6 @@ exports.addPage = catchAsync(async (req, res, next) => {
     }
 
     story.updatedAt = Date.now();
-    story.level = req.body.lvlAvg;
 
     await story.save();
     res.status(200).json({
@@ -189,8 +191,9 @@ exports.addWords = catchAsync(async (req, res, next) => {
     story.word3 = req.body.word3;
 
     await story.save();
-    res.status(201).json({
-        status: 'success'
+    res.status(200).json({
+        status: 'success',
+        story: mappedStory(story)
     });
 })
 
@@ -236,13 +239,6 @@ exports.closeStoriesByAuthor = catchAsync(async (req, res, next) => {
     })
 })
 
-exports.ownStoryCheck = catchAsync(async (req, res, next) => {
-    const story = await Story.findById(req.body.storyId);
-    if (story.authorId !== req.body.user._id.toString()) return next(new AppError('You can only edit your own story.', 401));
-    req.body.story = story;
-    next();
-})
-
 const updateRateValues = (story) => {
     story.upVotes = story.ratings
         .filter(rating => rating.rate === 1)
@@ -253,7 +249,8 @@ const updateRateValues = (story) => {
 }
 
 const mappedStory = story => {
-    const { ratings, ...props } = story.toObject();
+    const { ratings,levels, ...props } = story.toObject();
+    const code = numToString(levels.reduce((sum, level) => sum + level.rate, 0) / levels.length);
     return ({
         ...props,
         rating: {
@@ -261,7 +258,10 @@ const mappedStory = story => {
             total: story.ratings.length,
             average: getAverageRateInText(story.ratingAvg)
         },
-        level: numToString(story.level)
+        level: {
+            code: code,
+            text: getTextByCode(code)
+        }
     });
 }
 

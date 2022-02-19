@@ -2,14 +2,14 @@ const Page = require('../models/page');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const saveVote = require('../utils/vote');
-const { stringToNum, numToString, getTextByCode } = require('../utils/levelMapping');
+const { numToString, getTextByCode } = require('../utils/levelMapping');
 
 exports.getPage = catchAsync(async (req, res, next) => {
     const page = await Page.findById(req.params.id);
     if (!page) return next(new AppError(`No page found with ID ${req.params.id}`, 404))
     res.status(200).json({
         status: 'success',
-        page: mappedPage(page)
+        page: page
     })
 })
 
@@ -19,7 +19,7 @@ exports.getPages = catchAsync(async (req, res, next) => {
 
     if (pages.length === 0) return next(new AppError(`No page found with ID ${req.params.id}`, 404))
 
-    const mappedPages = pages.map(page => ({ ...mappedPage(page), key: page._id }))
+    const mappedPages = pages.map(page => ({ ...page.toObject(), key: page._id }))
     res.status(200).json({
         status: 'success',
         pages: mappedPages
@@ -45,11 +45,9 @@ exports.getPageDataByAuthor = catchAsync(async (req, res, next) => {
     })
 })
 
-
 exports.createPage = catchAsync(async (req, res, next) => {
     const page = await Page.create({
         text: req.body.text,
-        levels: [{ userId: req.body.user._id, rate: stringToNum(req.body.level) }],
         language: req.body.language,
         authorId: req.body.user._id,
         authorName: req.body.user.name,
@@ -70,23 +68,8 @@ exports.rateText = catchAsync(async (req, res, next) => {
     const updatedPage = await saveVote(user._id.toString(), vote, page);
     res.status(201).json({
         status: 'success',
-        newPage: mappedPage(updatedPage)
+        newPage: updatedPage
     })
-})
-
-exports.rateLevel = catchAsync(async (req, res, next) => {
-    const page = await Page.findById(req.body.pageId);
-
-    if (!page) return next(new AppError(`No page found with ID ${req.body.pageId}`, 404))
-
-    const rate = stringToNum(req.body.rate);
-    const vote = page.levels.find(level => level.userId === req.body.user._id.toString());
-    vote ? vote.rate = rate : page.levels.push({ userId: req.body.user._id, rate: rate });
-    await page.save();
-    res.status(201).json({
-        status: 'success',
-        updatedPage: mappedPage(page)
-    });
 })
 
 exports.deletePage = catchAsync(async (req, res, next) => {
@@ -94,7 +77,6 @@ exports.deletePage = catchAsync(async (req, res, next) => {
     if (!page) return next(new AppError(`No page found with ID ${req.params.id}.`, 404));
     if (req.body.user._id.toString() !== page.authorId) return next(new AppError('You can only delete pages from your own story.', 401));
 
-    // await Page.findByIdAndDelete(req.params.id);
     page.archived = true;
     await page.save();
     res.status(204).json({
@@ -115,7 +97,6 @@ exports.deletePages = catchAsync(async (req, res, next) => {
         page.save();
     });
 
-    //await Page.deleteMany({ _id: { $in: ids } });
     res.status(204).json({
         status: 'success',
         data: null
@@ -123,15 +104,5 @@ exports.deletePages = catchAsync(async (req, res, next) => {
 })
 
 
-const mappedPage = page => {
-    const code = numToString(page.levels.reduce((sum, level) => sum + level.rate, 0) / page.levels.length);
-    const { levels, ...props } = page.toObject();
-    return {
-        ...props,
-        level: {
-            code: code,
-            text: getTextByCode(code)
-        }
-    }
-};
+
 

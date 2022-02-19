@@ -5,7 +5,7 @@ const storySchema = mongoose.Schema({
     title: String,
     description: String,
     language: String,
-    level: Number,
+    levels:  [{ userId: String, rate: Number }],
     authorId: String,
     authorName: String,
     ratings: [Rating],
