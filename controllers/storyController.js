@@ -51,28 +51,22 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
             markedStoryAt: user.markedStoryAt
         });
     }
-    let story = await Story.findById(user.markedStoryId);
-    if (!story || timesUp) {
+    let storyId = user.markedStoryId;
+    if (!storyId || timesUp) {
         const { langInfo } = req.body;
         const { level, language } = langInfo[Math.floor(Math.random() * langInfo.length)];
 
         const stories = await Story.find({ language, authorId: { $ne: user._id } });
         const mappedStories = stories.map(story => {
-            const { ratings,levels, ...props } = story.toObject();
+            const {  levels, _id } = story.toObject();
             return ({
-                ...props,
-                rating: {
-                    positive: story.upVotes,
-                    total: story.ratings.length,
-                    average: getAverageRateInText(story.ratingAvg)
-                },
+                _id,
                 level: levels.reduce((sum, level) => sum + level.rate, 0) / levels.length
             });
         })
         const filterStories = () => mappedStories.filter(story => story.level < level + count && story.level > level - count);
         let count = 0.5;
         let filteredStories = [];
-
         while (filteredStories.length === 0 && count < 6) {
             filteredStories = filterStories();
             count++;
@@ -81,18 +75,18 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
         if (!filteredStories) filteredStories = await Story.find({ language });
         if (!filteredStories) filteredStories = await Story.find();
         if (!filteredStories) return next(new AppError('Something went wrong, no stories found at all.', 500));
+        storyId = filteredStories[Math.floor(Math.random() * filteredStories.length)]._id;
 
-        story = filteredStories[Math.floor(Math.random() * filteredStories.length)];
-        user.markedStoryId = story._id;
+        user.markedStoryId = storyId;
         user.markedStoryAt = Date.now();
         user.dailyCompleted = false;
-        await user.save();
+        user.save();
     }
-
-    res.status(200).json({
+    const story = await Story.findById(storyId);
+    res.status(201).json({
         status: 'success',
-        story: mappedStory(story),
-        markedStoryAt: user.markedStoryAt
+        story:mappedStory(story),
+        markedStoryAt: Date.now()
     })
 })
 
@@ -118,7 +112,7 @@ exports.getStories = catchAsync(async (req, res, next) => {
         stories: mappedResult
     })
 })
-exports.editStory =catchAsync(async (req, res, next) => {
+exports.editStory = catchAsync(async (req, res, next) => {
     const story = await Story.findById(req.params.id);
     story.description = req.body.description;
     story.save();
@@ -209,7 +203,7 @@ exports.addWords = catchAsync(async (req, res, next) => {
 })
 
 exports.removePendingPage = catchAsync(async (req, res, next) => {
-    const {story} = req.body;
+    const { story } = req.body;
     const index = story.pendingPageIds.indexOf(req.body.pageId);
     story.pendingPageIds.splice(index, 1);
     await story.save();
@@ -260,7 +254,7 @@ const updateRateValues = (story) => {
 }
 
 const mappedStory = story => {
-    const { ratings,levels, ...props } = story.toObject();
+    const { ratings, levels, ...props } = story.toObject();
     const code = numToString(levels.reduce((sum, level) => sum + level.rate, 0) / levels.length);
     return ({
         ...props,
