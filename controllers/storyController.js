@@ -57,8 +57,19 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
         const { level, language } = langInfo[Math.floor(Math.random() * langInfo.length)];
 
         const stories = await Story.find({ language, authorId: { $ne: user._id } });
-
-        const filterStories = () => stories.filter(story => story.level < level + count && story.level > level - count);
+        const mappedStories = stories.map(story => {
+            const { ratings,levels, ...props } = story.toObject();
+            return ({
+                ...props,
+                rating: {
+                    positive: story.upVotes,
+                    total: story.ratings.length,
+                    average: getAverageRateInText(story.ratingAvg)
+                },
+                level: levels.reduce((sum, level) => sum + level.rate, 0) / levels.length
+            });
+        })
+        const filterStories = () => mappedStories.filter(story => story.level < level + count && story.level > level - count);
         let count = 0.5;
         let filteredStories = [];
 
