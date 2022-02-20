@@ -75,13 +75,11 @@ exports.rateText = catchAsync(async (req, res, next) => {
 exports.deletePage = catchAsync(async (req, res, next) => {
     const page = await Page.findById(req.params.id);
     if (!page) return next(new AppError(`No page found with ID ${req.params.id}.`, 404));
-    if (req.body.user._id.toString() !== page.authorId) return next(new AppError('You can only delete pages from your own story.', 401));
 
     page.archived = true;
     await page.save();
     res.status(204).json({
-        status: 'success',
-        data: null
+        status: 'success'
     });
 })
 
@@ -89,17 +87,13 @@ exports.deletePage = catchAsync(async (req, res, next) => {
 exports.deletePages = catchAsync(async (req, res, next) => {
     const ids = req.params.ids.split(',');
     const pages = await Page.find({ _id: { $in: ids } });
-    const otherPage = pages.find(page => req.body.user._id.toString() !== page.authorId);
-
-    if (otherPage) return next(new AppError(`Page ${otherPage._id} is not yours to delete.`));
     pages.forEach(page =>{
         page.archived=true;
         page.save();
     });
 
     res.status(204).json({
-        status: 'success',
-        data: null
+        status: 'success'
     });
 })
 
