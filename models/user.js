@@ -21,6 +21,7 @@ const user = mongoose.Schema({
     active: {type: Boolean,default: true},
     confirmed: { type: Boolean, default: false },
     numberOfTablets: { type: Number, default: 0 },
+    signedUpAt:Number,
     markedStoryId: String,
     markedStoryAt: Number,
     lastActivity: Date,

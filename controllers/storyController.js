@@ -44,21 +44,27 @@ exports.getStory = catchAsync(async (req, res, next) => {
 
 exports.getTributeData = catchAsync(async (req, res, next) => {
     const { user } = req.body;
-    const timesUp = user.markedStoryAt + 24 * 60 * 60 * 1000 < Date.now();
+    const oneDay = 24 * 60 * 60 * 1000;
+    const millisecondsLeft = oneDay - ((Date.now()-user.signedUpAt) % oneDay);
+    const minutesLeft = millisecondsLeft / 1000 / 60
+    const hoursLeft = millisecondsLeft / 1000 / 60 / 60;
+    const timesUp = user.markedStoryAt + oneDay < Date.now();
     if (user.dailyCompleted && !timesUp) {
         return res.status(200).json({
             status: 'success',
-            markedStoryAt: user.markedStoryAt
+            minutesLeft,
+            hoursLeft
         });
     }
     let storyId = user.markedStoryId;
+  
     if (!storyId || timesUp) {
         const { langInfo } = req.body;
         const { level, language } = langInfo[Math.floor(Math.random() * langInfo.length)];
 
         const stories = await Story.find({ language, authorId: { $ne: user._id } });
         const mappedStories = stories.map(story => {
-            const {  levels, _id } = story.toObject();
+            const { levels, _id } = story.toObject();
             return ({
                 _id,
                 level: levels.reduce((sum, level) => sum + level.rate, 0) / levels.length
@@ -78,15 +84,17 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
         storyId = filteredStories[Math.floor(Math.random() * filteredStories.length)]._id;
 
         user.markedStoryId = storyId;
-        user.markedStoryAt = Date.now();
+        user.markedStoryAt = Date.now() + oneDay - millisecondsLeft;
         user.dailyCompleted = false;
         user.save();
     }
     const story = await Story.findById(storyId);
+  
     res.status(201).json({
         status: 'success',
-        story:mappedStory(story),
-        markedStoryAt: Date.now()
+        story: mappedStory(story),
+        minutesLeft,
+        hoursLeft
     })
 })
 

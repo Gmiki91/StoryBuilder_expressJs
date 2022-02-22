@@ -31,7 +31,20 @@ process.on('uncaughtException', err => {
 app.use(helmet());
 
 //enable all cors requests
-app.use(cors());
+app.use(function (req, res, next) {
+
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+
+    // Request methods you wish to allow
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
+
+    // Request headers you wish to allow
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization');
+
+    next();
+});
+
 
 //Body parser, reading data from body to req.body, limiting its size
 app.use(express.json({limit:'50kb'}));

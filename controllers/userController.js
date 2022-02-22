@@ -2,7 +2,6 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const User = require('../models/user');
 exports.getMe = (req, res) => {
-
     res.status(200).json({
         status: 'success',
         user: req.body.user
