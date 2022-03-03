@@ -45,7 +45,7 @@ exports.getStory = catchAsync(async (req, res, next) => {
 exports.getTributeData = catchAsync(async (req, res, next) => {
     const { user } = req.body;
     const oneDay = 24 * 60 * 60 * 1000;
-    const millisecondsLeft = oneDay - ((Date.now()-user.signedUpAt) % oneDay);
+    const millisecondsLeft = oneDay - ((Date.now() - user.signedUpAt) % oneDay);
     const minutesLeft = millisecondsLeft / 1000 / 60
     const hoursLeft = millisecondsLeft / 1000 / 60 / 60;
     const timesUp = user.markedStoryAt + oneDay < Date.now();
@@ -57,7 +57,7 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
         });
     }
     let storyId = user.markedStoryId;
-  
+
     if (!storyId || timesUp) {
         const { langInfo } = req.body;
         const { level, language } = langInfo[Math.floor(Math.random() * langInfo.length)];
@@ -89,7 +89,7 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
         user.save();
     }
     const story = await Story.findById(storyId);
-  
+
     res.status(201).json({
         status: 'success',
         story: mappedStory(story),
@@ -104,17 +104,17 @@ exports.getStories = catchAsync(async (req, res, next) => {
     const sortObject = {};
     if (from === 'own') query['authorId'] = user._id
     else if (from === 'favorite') query['_id'] = { $in: user.favoriteStoryIdList };
-
     if (storyName.length > 2) query['title'] = { $regex: new RegExp(`${storyName}`, 'i') };
     if (languages.length > 0) query['language'] = languages;
-    if (levels.length > 0) query['level'] = levels;
     if (open !== 'both') query['open'] = open;
     sortObject[sortBy] = sortDirection;
     const result = await Story
         .find(query)
         .sort(sortObject);
 
-    const mappedResult = result.map(story => ({ ...mappedStory(story), key: story._id }))
+    let mappedResult = result.map(story => ({ ...mappedStory(story), key: story._id }));
+    if (levels.length > 0) mappedResult = mappedResult.filter(story => levels.indexOf(story.level.code) !== -1);
+
     res.status(200).json({
         status: 'success',
         stories: mappedResult

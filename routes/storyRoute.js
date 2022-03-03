@@ -5,6 +5,7 @@ const authCheck = require('../middleware/authCheck');
 const tributeComplete = require('../middleware/tributeComplete');
 const langInfo = require('../middleware/langInfo');
 const ownStoryCheck = require('../middleware/ownStoryCheck');
+const publicRoute = require('../middleware/publicRoute');
 
 router.route('/')
     .post(authCheck, storyController.createStory)
@@ -24,7 +25,7 @@ router.route('/pendingPage')
 
 
 router.get('/tribute/data', authCheck, langInfo, storyController.getTributeData);
-router.post('/all', authCheck, storyController.getStories);
+router.post('/all', publicRoute, storyController.getStories);
 router.put('/rate', authCheck, storyController.rateStory);
 router.put('/level', authCheck, storyController.levelChange);
 router.put('/page',authCheck, ownStoryCheck, storyController.addPage);
