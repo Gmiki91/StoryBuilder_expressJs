@@ -84,7 +84,7 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
         storyId = filteredStories[Math.floor(Math.random() * filteredStories.length)]._id;
 
         user.markedStoryId = storyId;
-        user.markedStoryAt = Date.now() + oneDay - millisecondsLeft;
+        user.markedStoryAt = user.signedUpAt + (Math.floor((Date.now()-user.signedUpAt)/oneDay)*oneDay);
         user.dailyCompleted = false;
         user.save();
     }
