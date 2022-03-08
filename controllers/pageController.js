@@ -51,8 +51,7 @@ exports.createPage = catchAsync(async (req, res, next) => {
         language: req.body.language,
         authorId: req.body.user._id,
         authorName: req.body.user.name,
-        storyId: req.body.storyId,
-        ratings: req.body.rating
+        ratings: []
     });
     res.status(201).json({
         status: 'success',
