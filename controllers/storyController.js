@@ -46,7 +46,7 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
     const { user } = req.body;
     const oneDay = 24 * 60 * 60 * 1000;
     const millisecondsLeft = oneDay - ((Date.now() - user.signedUpAt) % oneDay);
-    const minutesLeft = millisecondsLeft / 1000 / 60
+    const minutesLeft = millisecondsLeft / 1000 / 60;
     const hoursLeft = millisecondsLeft / 1000 / 60 / 60;
     const timesUp = user.markedStoryAt + oneDay < Date.now();
     if (user.dailyCompleted && !timesUp) {
@@ -126,6 +126,7 @@ exports.editStory = catchAsync(async (req, res, next) => {
     story.save();
     res.status(201).json({
         status: 'success',
+        story: mappedStory(story)
     })
 })
 

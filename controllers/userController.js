@@ -17,7 +17,8 @@ exports.getUser=catchAsync(async (req,res,next)=>{
             name:user.name,
             email:user.email,
             lastActivity:user.lastActivity,
-            active:user.active
+            active:user.active,
+            numberOfTablets:user.numberOfTablets,
         }
     })
 })
