@@ -3,9 +3,9 @@
 # dependencies
 /node_modules
 /.serverless
+/*.yaml
 /.pnp
 .pnp.js
-
 # testing
 /coverage
 
