@@ -5,7 +5,7 @@ const Stories = require('../models/story');
 module.exports = catchAsync(async (req, res, next) => {
 
     const authorId = req.params.authorId || req.body.user._id; //first case is Stats, second is Tribute route
-    const pages = await Page.find({ authorId });
+    const pages = await Page.find({ authorId, archived:false });
     const pageIds = pages.map(page => page._id);
     const stories = await Stories.find({ $or: [{ pageIds: { $in: pageIds } }, { pendingPageIds: { $in: pageIds } }] });
     const lvlPages = pages.map(page => {
