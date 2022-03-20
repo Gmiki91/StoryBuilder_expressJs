@@ -84,7 +84,7 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
         storyId = filteredStories[Math.floor(Math.random() * filteredStories.length)]._id;
 
         user.markedStoryId = storyId;
-        user.markedStoryAt = user.signedUpAt + (Math.floor((Date.now()-user.signedUpAt)/oneDay)*oneDay);
+        user.markedStoryAt = user.signedUpAt + (Math.floor((Date.now() - user.signedUpAt) / oneDay) * oneDay);
         user.dailyCompleted = false;
         user.save();
     }
@@ -120,6 +120,20 @@ exports.getStories = catchAsync(async (req, res, next) => {
         stories: mappedResult
     })
 })
+
+exports.getStoriesWithPendingPages = catchAsync(async (req, res, next) => {
+    const stories = await Story.find({
+        authorId: req.body.user._id,
+        pendingPageIds: { $exists: true, $not: { $size: 0 } }
+    });
+    let mappedResult = stories.map(story => ({ ...mappedStory(story), key: story._id }));
+    res.status(200).json({
+        status: 'success',
+        stories: mappedResult
+    })
+
+})
+
 exports.editStory = catchAsync(async (req, res, next) => {
     const story = await Story.findById(req.params.id);
     story.description = req.body.description;

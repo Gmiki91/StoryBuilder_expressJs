@@ -9,6 +9,7 @@ const publicRoute = require('../middleware/publicRoute');
 
 router.route('/')
     .post(authCheck, storyController.createStory)
+    .get(authCheck, storyController.getStoriesWithPendingPages)
     .put(authCheck, storyController.addWords);
 
 router.route('/one/:id')
