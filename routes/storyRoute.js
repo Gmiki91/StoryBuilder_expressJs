@@ -17,7 +17,7 @@ router.route('/one/:id')
     .put(authCheck, storyController.editStory)
     .delete(authCheck, storyController.deleteStory);
 router.route('/many/:authorId')
-    .get(authCheck, storyController.getStoryDataByAuthor)
+    .get(storyController.getStoryDataByAuthor)
 
 router.route('/pendingPage')
     .post(authCheck, tributeComplete, storyController.addPendingPage)

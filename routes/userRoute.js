@@ -5,6 +5,7 @@ const userController = require('../controllers/userController');
 const authCheck = require('../middleware/authCheck');
 
 router.post('/signup', authController.signup);
+router.post('/presignup', authController.preSignupCheck);
 router.post('/login', authController.login);
 router.post('/loginGoogle', authController.loginGoogle);
 
@@ -15,13 +16,13 @@ router.patch('/updatePassword', authCheck, authController.updatePassword);
 router
     .route('/')
     .get(authCheck, userController.getMe)
-    .patch(authCheck, userController.deleteMe);
+    .patch(authCheck, userController.deleteMe)
 router
     .route('/favorites')
     .get(authCheck, userController.getFavorites)
     .post(authCheck, userController.addFavorite)
     .put(authCheck, userController.removeFavorite);
 
-router.get('/user/:id', authCheck, userController.getUser)
+router.get('/user/:id',  userController.getUser)
 router.get('/lekvar', userController.getLekvar)
 module.exports = router;

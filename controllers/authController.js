@@ -11,7 +11,14 @@ const signToken = id => jwt.sign(
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRATION }
 );
-
+exports.preSignupCheck= catchAsync(async (req, res, next) => {
+    const user = await User.findOne({$or:[{email:req.body.email}, {name:req.body.name}]})
+    const duplicate = user ? true:false;
+    res.status(200).json({
+        status: 'success',
+        duplicate
+    });
+})
 exports.signup = catchAsync(async (req, res, next) => {
     const user = await User.create({
         name: req.body.name,
@@ -24,6 +31,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     const token = signToken(user._id);
     res.status(201).json({
         status: 'success',
+        user,
         token
     });
 })
@@ -38,7 +46,6 @@ exports.login = catchAsync(async (req, res, next) => {
     const token = signToken(user._id);
     res.status(200).json({
         status: 'success',
-        confirmed:user.confirmed,
         user,
         token
     })

@@ -4,6 +4,7 @@ const pageController = require('../controllers/pageController');
 const authCheck = require('../middleware/authCheck');
 const langInfo = require('../middleware/langInfo');
 const ownStoryCheck = require('../middleware/ownStoryCheck');
+const publicRoute = require('../middleware/publicRoute');
 
 router.post('/', authCheck, pageController.createPage);
 
@@ -16,7 +17,7 @@ router.route('/many/:ids')
     .patch(authCheck,ownStoryCheck, pageController.deletePages)
 
 router.put('/rateText', authCheck, pageController.rateText);
-router.get('/all/:authorId', authCheck,langInfo, pageController.getPageDataByAuthor);
+router.get('/all/:authorId', publicRoute,langInfo, pageController.getPageDataByAuthor);
 
 
 module.exports = router;
