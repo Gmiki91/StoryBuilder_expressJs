@@ -252,8 +252,8 @@ exports.getStoryDataByAuthor = catchAsync(async (req, res, next) => {
 })
 
 exports.closeStoriesByAuthor = catchAsync(async (req, res, next) => {
-    const { authorId } = req.params;
-    const stories = await Story.find({ authorId });
+    const { user } = req.body;
+    const stories = await Story.find({ authorId:user._id });
     stories.forEach(story => {
         if (story.open) {
             story.open = false;

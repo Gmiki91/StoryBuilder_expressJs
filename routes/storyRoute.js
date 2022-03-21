@@ -18,7 +18,7 @@ router.route('/one/:id')
     .delete(authCheck, storyController.deleteStory);
 router.route('/many/:authorId')
     .get(authCheck, storyController.getStoryDataByAuthor)
-    .patch(authCheck, storyController.closeStoriesByAuthor);
+
 router.route('/pendingPage')
     .post(authCheck, tributeComplete, storyController.addPendingPage)
     .put(authCheck, ownStoryCheck, storyController.removePendingPage);
@@ -26,10 +26,12 @@ router.route('/pendingPage')
 
 
 router.get('/tribute/data', authCheck, langInfo, storyController.getTributeData);
-router.post('/all', publicRoute, storyController.getStories);
+router.route('/all')
+    .post(publicRoute, storyController.getStories)
+    .delete(authCheck, storyController.closeStoriesByAuthor);
 router.put('/rate', authCheck, storyController.rateStory);
 router.put('/level', authCheck, storyController.levelChange);
-router.put('/page',authCheck, ownStoryCheck, storyController.addPage);
+router.put('/page', authCheck, ownStoryCheck, storyController.addPage);
 
 
 
