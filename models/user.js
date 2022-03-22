@@ -24,10 +24,10 @@ const user = mongoose.Schema({
     signedUpAt:Number,
     markedStoryId: String,
     markedStoryAt: Number,
-    lastActivity: Date,
-    passwordChangedAt: Date,
+    lastActivity: Number,
+    passwordChangedAt: Number,
     passwordResetToken: String,
-    passwordResetExpires: Date,
+    passwordResetExpires: Number,
     dailyCompleted: Boolean,
     favoriteStoryIdList: [String],
 }, { collection: 'users' })
@@ -57,7 +57,7 @@ user.methods.correctPassword = async function (candidatePw, userPw) {
 }
 user.methods.changedPasswordAfter = function (JWTTimestamp) {
     if (this.passwordChangedAt) {
-        const changedTimeStamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+        const changedTimeStamp = parseInt(this.passwordChangedAt / 1000, 10);
         return JWTTimestamp < changedTimeStamp;
     }
     return false;

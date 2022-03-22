@@ -17,7 +17,7 @@ exports.createStory = catchAsync(async (req, res, next) => {
         ratings: [],
         upVotes: 0,
         ratingAvg: 0,
-        updatedAt: new Date(),
+        updatedAt: Date.now(),
         pageIds: [pageId],
         pendingPageIds: [],
         word1: word1,

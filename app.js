@@ -20,6 +20,7 @@ const globalErrorHandler = require('./controllers/errorController')
 const storyRoute = require('./routes/storyRoute');
 const userRoute = require('./routes/userRoute');
 const pageRoute = require('./routes/pageRoute');
+const notificationRoute = require('./routes/notificationRoute');
 
 process.on('uncaughtException', err => {
     console.log('Uncaught exception. Shutting down...')
@@ -58,6 +59,7 @@ app.use('/api/users/login',limiter)
 app.use('/api/stories', storyRoute);
 app.use('/api/users', userRoute);
 app.use('/api/pages', pageRoute);
+app.use('/api/notifications',notificationRoute );
 app.all('*', (req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 })

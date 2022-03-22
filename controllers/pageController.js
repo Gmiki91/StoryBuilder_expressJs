@@ -77,8 +77,9 @@ exports.deletePage = catchAsync(async (req, res, next) => {
 
     page.archived = true;
     await page.save();
-    res.status(204).json({
-        status: 'success'
+    res.status(200).json({
+        status: 'success',
+        authorId:page.authorId
     });
 })
 
@@ -90,9 +91,11 @@ exports.deletePages = catchAsync(async (req, res, next) => {
         page.archived=true;
         page.save();
     });
+    const authorIds = pages.map(page=>page.authorId)
 
-    res.status(204).json({
-        status: 'success'
+    res.status(200).json({
+        status: 'success',
+        authorIds
     });
 })
 
