@@ -2,7 +2,9 @@ const Notification = require('../models/notification');
 const catchAsync = require('../utils/catchAsync');
 
 exports.getNotifications = catchAsync(async (req, res, next) => {
-    const notifications = await Notification.find({ userId: req.body.user._id });
+    const notifications = await Notification
+    .find({ userId: req.body.user._id })
+    .sort({date:-1})
     res.status(200).json({
         status: 'success',
         notifications
@@ -10,28 +12,27 @@ exports.getNotifications = catchAsync(async (req, res, next) => {
 })
 
 exports.addNotification = (req, res, next) => {
-    Notification.create({
-        userId: req.body.user._id,
-        date: req.body.note.date,
-        message: req.body.note.message,
-        code: req.body.note.code,
-    });
+    createNote(req.body.user._id, req);
     res.status(201).json({
         status: 'success'
     })
 }
 
-exports.addNotificationToOthers =  (req, res, next) => {
-    req.params.userIds.forEach(userId => {
-        Notification.create({
-            userId: userId,
-            date: req.body.note.date,
-            message: req.body.note.message,
-            code: req.body.note.code,
-        });
-    })
-
+exports.addNotificationToOthers = (req, res, next) => {
+    req.params.userIds.forEach(userId =>
+        createNote(userId, req)
+    )
     res.status(201).json({
         status: 'success'
+    })
+}
+
+const createNote = (userId, req) => {
+    Notification.create({
+        userId: userId,
+        date: req.body.note.date,
+        message: req.body.note.message,
+        code: req.body.note.code,
+        storyId: req.body.note.storyId
     })
 }
