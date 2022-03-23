@@ -19,7 +19,8 @@ exports.addNotification = (req, res, next) => {
 }
 
 exports.addNotificationToOthers = (req, res, next) => {
-    req.params.userIds.forEach(userId =>
+    const arr = req.params.userIds.split(',');
+    arr.forEach(userId =>
         createNote(userId, req)
     )
     res.status(201).json({
