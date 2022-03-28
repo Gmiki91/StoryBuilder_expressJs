@@ -21,7 +21,7 @@ exports.getUser=catchAsync(async (req,res,next)=>{
             email:user.email,
             lastActivity:user.lastActivity,
             active:user.active,
-            numberOfTablets:user.numberOfTablets,
+            coins:user.coins,
         }
     })
 })

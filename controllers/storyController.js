@@ -26,8 +26,10 @@ exports.createStory = catchAsync(async (req, res, next) => {
     });
     if (!user.confirmed) {
         user.confirmed = true
-        user.save();
-    };
+    }else{
+        user.frogcoins-=3;
+    }
+    user.save();
     res.status(201).json({
         status: 'success',
         storyId: story._id
@@ -196,7 +198,6 @@ exports.addPage = catchAsync(async (req, res, next) => {
     res.status(200).json({
         status: 'success',
         story: mappedStory(story),
-
     })
 })
 
