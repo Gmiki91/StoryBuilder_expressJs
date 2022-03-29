@@ -7,5 +7,5 @@ module.exports = router;
 router.route('/')
 .get(authCheck,controller.getNotifications)
 .post(authCheck,controller.addNotification);
-
+router.get('/check',authCheck,controller.getNewNotifications)
 router.post('/:userIds', authCheck,controller.addNotificationToOthers)

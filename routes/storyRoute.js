@@ -10,7 +10,6 @@ const confirmedPage = require('../middleware/confirmedPage');
 
 router.route('/')
     .post(authCheck, storyController.createStory)
-    .get(authCheck, storyController.getStoriesWithPendingPages)
     .put(authCheck, storyController.addWords);
 
 router.route('/one/:id')

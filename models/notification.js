@@ -4,7 +4,8 @@ const notificationSchema = mongoose.Schema({
     storyId: String,
     date: Number,
     message: String,
-    code: 'A' | 'B' |'C'
+    unseen: { type: Boolean, default: true },
+    code: 'A' | 'B' | 'C'
 }, { collection: 'notifications' });
 
 module.exports = mongoose.model('Notification', notificationSchema);
