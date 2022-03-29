@@ -1,19 +1,18 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { OAuth2Client } = require('google-auth-library')
+const generator = require('generate-password');
 const User = require('../models/user');
 const catchAsync = require('../utils/catchAsync')
 const AppError = require('../utils/appError');
 const sendEmail = require('../utils/email');
-const client = new OAuth2Client(process.env.REACT_APP_CLIENT_ID)
 const signToken = id => jwt.sign(
     { id },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRATION }
 );
-exports.preSignupCheck= catchAsync(async (req, res, next) => {
-    const user = await User.findOne({$or:[{email:req.body.email}, {name:req.body.name}]})
-    const duplicate = user ? true:false;
+exports.preSignupCheck = catchAsync(async (req, res, next) => {
+    const user = await User.findOne({ $or: [{ email: req.body.email }, { name: req.body.name }] })
+    const duplicate = user ? true : false;
     res.status(200).json({
         status: 'success',
         duplicate
@@ -25,8 +24,8 @@ exports.signup = catchAsync(async (req, res, next) => {
         email: req.body.email,
         password: req.body.password,
         favoriteStoryIdList: [],
-        lastActivity :  Date.now(),
-        signedUpAt : Date.now()
+        lastActivity: Date.now(),
+        signedUpAt: Date.now()
     });
     const token = signToken(user._id);
     res.status(201).json({
@@ -51,26 +50,24 @@ exports.login = catchAsync(async (req, res, next) => {
 })
 
 exports.loginGoogle = catchAsync(async (req, res, next) => {
-    const { token } = req.body;
-    const ticket = await client.verifyIdToken({
-        idToken: token,
-        audience: process.env.REACT_APP_CLIENT_ID
-    });
-    const { name, email } = ticket.getPayload();
+    const { email,name } = req.body;
     let user = await User.findOne({ email });
     if (!user) {
+        const password = generator.generate({length: 10,numbers: true});
         user = await User.create({
             name,
             email,
-            password: '??????',
+            password,
             favoriteStoryIdList: [],
-            writerRating: 0,
+            lastActivity: Date.now(),
+            signedUpAt: Date.now()
         })
     }
-    const jwt = signToken(user._id);
+    const token = signToken(user._id);
     res.status(200).json({
         status: 'success',
-        token: jwt
+        token,
+        user
     })
 })
 
@@ -98,7 +95,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     if (user) {
         const resetToken = user.createPasswordResetToken();
         //const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
-        const resetUrl = `https://8t84fca4l8.execute-api.eu-central-1.amazonaws.com/dev/api/users/resetPassword/${resetToken}`;
+        const resetUrl = `https://master.d277j65pk5b1yb.amplifyapp.com/reset/${resetToken}`;
         subject = 'Your password reset token (valid for 10 minutes) - StoryBuilder';
         message = `
         Hello ${user.name}!
