@@ -10,6 +10,20 @@ const signToken = id => jwt.sign(
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRATION }
 );
+
+const createSendToken = (user, statusCode, res) => {
+    const token = signToken(user._id);
+
+    // Remove password from output
+    user.password = undefined;
+
+    res.status(statusCode).json({
+        status: 'success',
+        token,
+        user
+    });
+};
+
 exports.preSignupCheck = catchAsync(async (req, res, next) => {
     const user = await User.findOne({ $or: [{ email: req.body.email }, { name: req.body.name }] })
     const duplicate = user ? true : false;
@@ -27,12 +41,7 @@ exports.signup = catchAsync(async (req, res, next) => {
         lastActivity: Date.now(),
         signedUpAt: Date.now()
     });
-    const token = signToken(user._id);
-    res.status(201).json({
-        status: 'success',
-        user,
-        token
-    });
+    createSendToken(user, 201, res);
 })
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -41,19 +50,14 @@ exports.login = catchAsync(async (req, res, next) => {
     const user = await User.findOne(query).select('+password');
     if (!user || !(await user.correctPassword(password, user.password))) return next(new AppError(`Incorrect login credentials.`, 401));
     await user.save();
-    const token = signToken(user._id);
-    res.status(200).json({
-        status: 'success',
-        user,
-        token
-    })
+    createSendToken(user, 200, res);
 })
 
 exports.loginGoogle = catchAsync(async (req, res, next) => {
-    const { email,name } = req.body;
+    const { email, name } = req.body;
     let user = await User.findOne({ email });
     if (!user) {
-        const password = generator.generate({length: 10,numbers: true});
+        const password = generator.generate({ length: 10, numbers: true });
         user = await User.create({
             name,
             email,
@@ -63,12 +67,7 @@ exports.loginGoogle = catchAsync(async (req, res, next) => {
             signedUpAt: Date.now()
         })
     }
-    const token = signToken(user._id);
-    res.status(200).json({
-        status: 'success',
-        token,
-        user
-    })
+    createSendToken(user, 200, res);
 })
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -79,12 +78,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
     user.password = newPassword;
     user.passwordChangedAt = Date.now() - 1000;
     await user.save();
-    const token = signToken(user._id);
-    res.status(201).json({
-        status: 'success',
-        message: 'Password has been changed!',
-        token
-    });
+    createSendToken(user, 201, res);
 })
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
@@ -143,10 +137,5 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save();
-
-    const token = signToken(user._id);
-    res.status(201).json({
-        status: 'success',
-        data: token
-    });
+    createSendToken(user, 201, res);
 })
