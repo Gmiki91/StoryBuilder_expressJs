@@ -46,6 +46,7 @@ exports.getPageDataByAuthor = catchAsync(async (req, res, next) => {
 })
 
 exports.createPage = catchAsync(async (req, res, next) => {
+    if(req.body.user.confirmed && req.body.user.coins<3) return next(new AppError('You need 3 coins to create a new page.', 400));
     const page = await Page.create({
         text: req.body.text,
         language: req.body.language,

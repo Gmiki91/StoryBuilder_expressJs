@@ -7,6 +7,7 @@ const saveVote = require('../utils/vote');
 
 exports.createStory = catchAsync(async (req, res, next) => {
     const { title, description, language, level, user, pageId, word1, word2, word3 } = req.body;
+    if(user.confirmed && user.frogcoins<3) return next(new AppError('You need 3 accepted page to create a new story.', 400));
     const story = await Story.create({
         title: title,
         description: description,

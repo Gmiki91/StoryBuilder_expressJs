@@ -89,8 +89,8 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     if (user) {
         const resetToken = user.createPasswordResetToken();
         //const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
-        const resetUrl = `https://master.d277j65pk5b1yb.amplifyapp.com/reset/${resetToken}`;
-        subject = 'Your password reset token (valid for 10 minutes) - StoryBuilder';
+        const resetUrl = `https://glyphses.com/reset/${resetToken}`;
+        subject = 'Your password reset token (valid for 10 minutes) - Glyphses';
         message = `
         Hello ${user.name}!
         A password reset event has been triggered. The password reset window is limited to 10 minutes.
@@ -98,8 +98,8 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
         ${resetUrl}`;
         await user.save();
     } else {
-        subject = 'Account access attempted - Storybuilder';
-        message = `You or someone else entered this email address when trying to change the password of a StoryBuilder account.
+        subject = 'Account access attempted - Glyphses';
+        message = `You or someone else entered this email address when trying to change the password of a Glyphses account.
          However, this email address is not in our database.
          If you are a registered user, please try again using the email address you gave when you registered.
          If you are not a registered user, please ignore this email.`;
@@ -120,7 +120,6 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
             user.passwordResetExpires = undefined;
             await user?.save();
         }
-        console.log(err);
         return next(new AppError('There was an error sending the email. Try again later!', 500));
     }
 })
