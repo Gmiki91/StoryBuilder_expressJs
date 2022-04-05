@@ -5,8 +5,9 @@ const authCheck = require('../middleware/authCheck');
 const langInfo = require('../middleware/langInfo');
 const ownStoryCheck = require('../middleware/ownStoryCheck');
 const publicRoute = require('../middleware/publicRoute');
+const tributeComplete = require('../middleware/tributeComplete');
 
-router.post('/', authCheck, pageController.createPage);
+router.post('/', authCheck,tributeComplete, pageController.createPage);
 
 router.route('/:id')
     .get(pageController.getPage)

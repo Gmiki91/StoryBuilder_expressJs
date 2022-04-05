@@ -197,7 +197,6 @@ exports.addPendingPage = catchAsync(async (req, res, next) => {
     res.status(200).json({
         status: 'success',
         story: mappedStory(story),
-        tributeCompleted: req.body.tributeCompleted
     })
 })
 

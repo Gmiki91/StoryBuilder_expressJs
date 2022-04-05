@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const storyController = require('../controllers/storyController');
 const authCheck = require('../middleware/authCheck');
-const tributeComplete = require('../middleware/tributeComplete');
 const langInfo = require('../middleware/langInfo');
 const ownStoryCheck = require('../middleware/ownStoryCheck');
 const publicRoute = require('../middleware/publicRoute');
@@ -20,7 +19,7 @@ router.route('/many/:authorId')
     .get(storyController.getStoryDataByAuthor)
 
 router.route('/pendingPage')
-    .post(authCheck, tributeComplete, storyController.addPendingPage)
+    .post(authCheck, storyController.addPendingPage)
     .put(authCheck, ownStoryCheck, storyController.removePendingPage);
 
 router.get('/tribute/data', authCheck, langInfo, storyController.getTributeData);
