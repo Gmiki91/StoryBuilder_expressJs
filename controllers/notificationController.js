@@ -17,7 +17,7 @@ exports.getNewNotifications = catchAsync(async (req, res, next) => {
         .find({ userId: req.body.user._id, unseen:true })
     res.status(200).json({
         status: 'success',
-        isNew:notifications.length>0
+        notes:notifications.length
     })
 })
 
