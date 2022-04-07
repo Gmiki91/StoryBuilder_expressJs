@@ -125,8 +125,9 @@ exports.getStories = catchAsync(async (req, res, next) => {
 })
 
 exports.editStory = catchAsync(async (req, res, next) => {
-    const story = await Story.findById(req.params.id);
-    story.description = req.body.description;
+    const {description, title, story} =req.body;
+    story.description = description;
+    story.title = title;
     story.save();
     res.status(201).json({
         status: 'success',
