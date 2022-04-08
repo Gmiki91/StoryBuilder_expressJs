@@ -2,6 +2,7 @@ const Page = require('../models/page');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const saveVote = require('../utils/vote');
+const { getLanguageObject } = require('../utils/languageMapping');
 const { numToString, getTextByCode } = require('../utils/levelMapping');
 
 exports.getPage = catchAsync(async (req, res, next) => {
@@ -35,7 +36,10 @@ exports.getPageDataByAuthor = catchAsync(async (req, res, next) => {
         page.ratings.forEach(rat => { if (rat.rate === 1) upVotes++; })
     );
 
-    const langInfo = req.body.langInfo.map(element => ({ ...element, level: getTextByCode(numToString(element.level)) }))
+    const langInfo = req.body.langInfo.map(element => 
+        ({ ...element,
+             level: getTextByCode(numToString(element.level)),
+            language:getLanguageObject(element.language)}))
     res.status(200).json({
         status: 'success',
         size: pages.length,

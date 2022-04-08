@@ -2,6 +2,7 @@ const catchAsync = require('../utils/catchAsync');
 const Page = require('../models/page');
 const Stories = require('../models/story');
 
+
 module.exports = catchAsync(async (req, res, next) => {
 
     const authorId = req.params.authorId || req.body.user._id; //first case is Stats, second is Tribute route

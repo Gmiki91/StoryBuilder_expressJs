@@ -1,6 +1,7 @@
 const Story = require('../models/story');
 const catchAsync = require('../utils/catchAsync');
 const { stringToNum, numToString, getTextByCode } = require('../utils/levelMapping');
+const { getLanguageObject } = require('../utils/languageMapping');
 const AppError = require('../utils/appError');
 const wilson = require('wilson-score-interval');
 const saveVote = require('../utils/vote');
@@ -266,7 +267,7 @@ const updateRateValues = (story) => {
 }
 
 const mappedStory = story => {
-    const { ratings, levels, ...props } = story.toObject();
+    const { ratings, levels,language, ...props } = story.toObject();
     const code = numToString(levels.reduce((sum, level) => sum + level.rate, 0) / levels.length);
     return ({
         ...props,
@@ -278,7 +279,8 @@ const mappedStory = story => {
         level: {
             code: code,
             text: getTextByCode(code)
-        }
+        },
+        language:getLanguageObject(language)
     });
 }
 
