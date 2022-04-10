@@ -24,7 +24,6 @@ const notificationRoute = require('./routes/notificationRoute');
 
 process.on('uncaughtException', err => {
     console.log('Uncaught exception. Shutting down...')
-    console.log(err.name, err.message, err.stack);
     process.exit(1);
 })
 

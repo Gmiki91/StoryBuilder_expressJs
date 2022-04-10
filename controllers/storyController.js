@@ -81,10 +81,9 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
             filteredStories = filterStories();
             count++;
         }
-
-        if (!filteredStories) filteredStories = await Story.find({ language });
-        if (!filteredStories) filteredStories = await Story.find();
-        if (!filteredStories) return next(new AppError('Something went wrong, no stories found at all.', 500));
+        if (filteredStories.length === 0) filteredStories = await Story.find({ language });
+        if (filteredStories.length === 0) filteredStories = await Story.find();
+        if (filteredStories.length === 0) return next(new AppError('Something went wrong, no stories found at all.', 500));
         storyId = filteredStories[Math.floor(Math.random() * filteredStories.length)]._id;
 
         user.markedStoryId = storyId;
