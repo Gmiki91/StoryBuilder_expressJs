@@ -9,7 +9,7 @@ const tributeComplete = require('../middleware/tributeComplete');
 
 router.post('/', authCheck,tributeComplete, pageController.createPage);
 
-router.route('/:id')
+router.route('/one/:id')
     .get(pageController.getPage)
     .patch(authCheck,ownStoryCheck, pageController.deletePage)
     
@@ -17,8 +17,8 @@ router.route('/many/:ids')
     .get(pageController.getPages)
     .patch(authCheck,ownStoryCheck, pageController.deletePages)
 
+router.get('/data/:authorId', publicRoute,langInfo, pageController.getPageDataByAuthor);
 router.put('/rateText', authCheck, pageController.rateText);
-router.get('/all/:authorId', publicRoute,langInfo, pageController.getPageDataByAuthor);
 
 
 module.exports = router;
