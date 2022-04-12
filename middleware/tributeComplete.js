@@ -17,6 +17,9 @@ module.exports = catchAsync(async (req, res, next) => {
             req.body.tributeCompleted = false;
             user.save();
         }
+        //should be unreachable
+    } else if (user.frogcoins < 3 && user.confirmed) {
+        return next(new AppError('You need 3 accepted page to create a new story.', 400));
     }
 
     next();
