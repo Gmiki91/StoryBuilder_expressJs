@@ -8,7 +8,7 @@ const saveVote = require('../utils/vote');
 
 exports.createStory = catchAsync(async (req, res, next) => {
     const { title, description, language, level, user, pageId, word1, word2, word3 } = req.body;
-    if(user.confirmed && user.frogcoins<3) return next(new AppError('You need 3 accepted page to create a new story.', 400));
+    if (user.confirmed && user.frogcoins < 3) return next(new AppError('You need 3 accepted page to create a new story.', 400));
     const story = await Story.create({
         title: title,
         description: description,
@@ -28,8 +28,8 @@ exports.createStory = catchAsync(async (req, res, next) => {
     });
     if (!user.confirmed) {
         user.confirmed = true
-    }else{
-        user.frogcoins-=3;
+    } else {
+        user.frogcoins -= 3;
     }
     user.save();
     res.status(201).json({
@@ -67,6 +67,7 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
         const { level, language } = langInfo[Math.floor(Math.random() * langInfo.length)];
 
         const stories = await Story.find({ language, authorId: { $ne: user._id } });
+
         const mappedStories = stories.map(story => {
             const { levels, _id } = story.toObject();
             return ({
@@ -74,6 +75,8 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
                 level: levels.reduce((sum, level) => sum + level.rate, 0) / levels.length
             });
         })
+
+        // Look for level && language match
         const filterStories = () => mappedStories.filter(story => story.level < level + count && story.level > level - count);
         let count = 0.5;
         let filteredStories = [];
@@ -81,7 +84,15 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
             filteredStories = filterStories();
             count++;
         }
+
+        // Look for language && level match, exclude previous daily story
+        filteredStories = filteredStories.filter(story =>story._id!==user.markedStoryId);
+        // look for language match, exclude previous daily story
+        if (filteredStories.length === 0) 
+        filteredStories = await Story.find({ language, _id: { $not: user.markedStoryId } });
+        // look for language match
         if (filteredStories.length === 0) filteredStories = await Story.find({ language });
+        // look for anything
         if (filteredStories.length === 0) filteredStories = await Story.find();
         if (filteredStories.length === 0) return next(new AppError('Something went wrong, no stories found at all.', 500));
         storyId = filteredStories[Math.floor(Math.random() * filteredStories.length)]._id;
@@ -125,7 +136,7 @@ exports.getStories = catchAsync(async (req, res, next) => {
 })
 
 exports.editStory = catchAsync(async (req, res, next) => {
-    const {description, title, story} =req.body;
+    const { description, title, story } = req.body;
     story.description = description;
     story.title = title;
     story.save();
@@ -242,7 +253,7 @@ exports.getStoryDataByAuthor = catchAsync(async (req, res, next) => {
 
 exports.closeStoriesByAuthor = catchAsync(async (req, res, next) => {
     const { user } = req.body;
-    const stories = await Story.find({ authorId:user._id });
+    const stories = await Story.find({ authorId: user._id });
     stories.forEach(story => {
         if (story.open) {
             story.open = false;
@@ -266,7 +277,7 @@ const updateRateValues = (story) => {
 }
 
 const mappedStory = story => {
-    const { ratings, levels,language, ...props } = story.toObject();
+    const { ratings, levels, language, ...props } = story.toObject();
     const code = numToString(levels.reduce((sum, level) => sum + level.rate, 0) / levels.length);
     return ({
         ...props,
@@ -279,7 +290,7 @@ const mappedStory = story => {
             code: code,
             text: getTextByCode(code)
         },
-        language:getLanguageObject(language)
+        language: getLanguageObject(language)
     });
 }
 

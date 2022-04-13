@@ -32,11 +32,14 @@ exports.preSignupCheck = catchAsync(async (req, res, next) => {
         duplicate
     });
 })
+
 exports.signup = catchAsync(async (req, res, next) => {
+    let {name, email, password} = req.body
+    if (!password || password==='') password = generator.generate({ length: 10, numbers: true });
     const user = await User.create({
-        name: req.body.name,
-        email: req.body.email,
-        password: req.body.password,
+        name: name,
+        email: email,
+        password: password,
         favoriteStoryIdList: [],
         lastActivity: Date.now(),
         signedUpAt: Date.now()
@@ -54,19 +57,9 @@ exports.login = catchAsync(async (req, res, next) => {
 })
 
 exports.loginGoogle = catchAsync(async (req, res, next) => {
-    const { email, name } = req.body;
+    const { email } = req.body;
     let user = await User.findOne({ email });
-    if (!user) {
-        const password = generator.generate({ length: 10, numbers: true });
-        user = await User.create({
-            name,
-            email,
-            password,
-            favoriteStoryIdList: [],
-            lastActivity: Date.now(),
-            signedUpAt: Date.now()
-        })
-    }
+    if (!user ) return next(new AppError(`${email} is not found`, 401));
     createSendToken(user, 200, res);
 })
 
