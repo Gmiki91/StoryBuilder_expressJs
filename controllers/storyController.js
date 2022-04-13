@@ -89,7 +89,7 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
         filteredStories = filteredStories.filter(story =>story._id!==user.markedStoryId);
         // look for language match, exclude previous daily story
         if (filteredStories.length === 0) 
-        filteredStories = await Story.find({ language, _id: { $not: user.markedStoryId } });
+        filteredStories = await Story.find({ language, _id: { $ne: user.markedStoryId } });
         // look for language match
         if (filteredStories.length === 0) filteredStories = await Story.find({ language });
         // look for anything
