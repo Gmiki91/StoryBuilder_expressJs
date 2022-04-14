@@ -4,7 +4,7 @@ const notificationSchema = mongoose.Schema({
     storyId: String,
     date: Number,
     message: String,
-    unseen: { type: Boolean, default: true },
+    unseen:Boolean,
     code: 'A' | 'B' | 'C'
 }, { collection: 'notifications' });
 

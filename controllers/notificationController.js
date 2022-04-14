@@ -39,11 +39,13 @@ exports.addNotificationToOthers = (req, res, next) => {
 }
 
 const createNote = (userId, req) => {
+    const {date, message, code, storyId, unseen} = req.body.note;
     Notification.create({
-        userId: userId,
-        date: req.body.note.date,
-        message: req.body.note.message,
-        code: req.body.note.code,
-        storyId: req.body.note.storyId
+        userId,
+        date,
+        message,
+        code,
+        storyId,
+        unseen
     })
 }
