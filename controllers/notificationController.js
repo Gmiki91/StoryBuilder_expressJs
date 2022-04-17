@@ -30,6 +30,10 @@ exports.addNotification = (req, res, next) => {
 
 exports.addNotificationToOthers = (req, res, next) => {
     const arr = req.params.userIds.split(',');
+    const index = arr.indexOf(req.body.user._id.toString())
+    if(index !== -1) {
+        arr.splice(index, 1);
+    }
     arr.forEach(userId =>
         createNote(userId, req)
     )
