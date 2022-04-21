@@ -20,7 +20,7 @@ const user = mongoose.Schema({
     },
     active: {type: Boolean,default: true},
     confirmed: { type: Boolean, default: false },
-    coins: { type: Number, default: 0 },
+    coins: { type: Number, default: 3 },
     frogcoins:{ type: Number, default: 0 },
     signedUpAt:Number,
     markedStoryId: String,
