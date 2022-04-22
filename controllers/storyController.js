@@ -66,7 +66,7 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
         const { langInfo } = req.body;
         const { level, language } = langInfo[Math.floor(Math.random() * langInfo.length)];
 
-        const stories = await Story.find({ language, authorId: { $ne: user._id } });
+        const stories = await Story.find({ language, open:true, authorId: { $ne: user._id } });
 
         const mappedStories = stories.map(story => {
             const { levels, _id } = story.toObject();
@@ -89,11 +89,11 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
         filteredStories = filteredStories.filter(story =>story._id!==user.markedStoryId);
         // look for language match, exclude previous daily story
         if (filteredStories.length === 0) 
-        filteredStories = await Story.find({ language, _id: { $ne: user.markedStoryId } });
+        filteredStories = await Story.find({ language,open:true, _id: { $ne: user.markedStoryId } });
         // look for language match
-        if (filteredStories.length === 0) filteredStories = await Story.find({ language });
+        if (filteredStories.length === 0) filteredStories = await Story.find({ language,open:true });
         // look for anything
-        if (filteredStories.length === 0) filteredStories = await Story.find();
+        if (filteredStories.length === 0) filteredStories = await Story.find({open:true});
         if (filteredStories.length === 0) return next(new AppError('Something went wrong, no stories found at all.', 500));
         storyId = filteredStories[Math.floor(Math.random() * filteredStories.length)]._id;
 

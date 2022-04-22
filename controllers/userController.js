@@ -30,8 +30,7 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
     const user = await User.findById(req.body.user._id).select(['+password', 'active']);
     const { deletePassword } = req.body;
     if (!user || !(await user.correctPassword(deletePassword, user.password))) return next(new AppError(`Incorrect password`, 401));
-    user.active = false;
-    await user.save();
+    await User.deleteById(req.body.user._id);
     res.status(201).json({
         status: 'success',
         message: 'User deleted successfully'
