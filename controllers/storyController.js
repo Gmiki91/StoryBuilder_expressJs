@@ -94,7 +94,7 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
         if (filteredStories.length === 0) filteredStories = await Story.find({ language,open:true });
         // look for anything
         if (filteredStories.length === 0) filteredStories = await Story.find({open:true});
-        if (filteredStories.length === 0) return next(new AppError('Something went wrong, no stories found at all.', 500));
+        if (filteredStories.length === 0) return next(new AppError('Something went wrong, no stories found for the daily.', 500));
         storyId = filteredStories[Math.floor(Math.random() * filteredStories.length)]._id;
 
         user.markedStoryId = storyId;
