@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Rating = require('./subSchema');
+const Rating = require('./rating');
 
 const storySchema = mongoose.Schema({
     title: String,

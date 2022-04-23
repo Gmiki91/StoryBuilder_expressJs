@@ -11,6 +11,7 @@ router.post('/', authCheck,tributeComplete, pageController.createPage);
 
 router.route('/one/:id')
     .get(pageController.getPage)
+    .post(authCheck, pageController.addCorrection)
     .patch(authCheck,ownStoryCheck, pageController.deletePage)
     
 router.route('/many/:ids')

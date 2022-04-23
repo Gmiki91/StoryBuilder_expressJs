@@ -36,10 +36,12 @@ exports.getPageDataByAuthor = catchAsync(async (req, res, next) => {
         page.ratings.forEach(rat => { if (rat.rate === 1) upVotes++; })
     );
 
-    const langInfo = req.body.langInfo.map(element => 
-        ({ ...element,
-             level: getTextByCode(numToString(element.level)),
-            language:getLanguageObject(element.language)}))
+    const langInfo = req.body.langInfo.map(element =>
+    ({
+        ...element,
+        level: getTextByCode(numToString(element.level)),
+        language: getLanguageObject(element.language)
+    }))
     res.status(200).json({
         status: 'success',
         size: pages.length,
@@ -76,6 +78,24 @@ exports.rateText = catchAsync(async (req, res, next) => {
     })
 })
 
+exports.addCorrection = catchAsync(async (req, res, next) => {
+    const { user, error, correction } = req.body;
+    const correctionObj = {
+        by: user._id,
+        error,
+        correction,
+    };
+    await Page.findOneAndUpdate(
+        { _id: req.params.id },
+        { $push: { corrections: correctionObj } }
+    );
+
+    res.status(201).json({
+        status: 'success',
+        correction: correctionObj,
+    })
+})
+
 exports.deletePage = catchAsync(async (req, res, next) => {
     const page = await Page.findById(req.params.id);
     if (!page) return next(new AppError(`No page found with ID ${req.params.id}.`, 404));
@@ -84,7 +104,7 @@ exports.deletePage = catchAsync(async (req, res, next) => {
     await page.save();
     res.status(200).json({
         status: 'success',
-        authorId:page.authorId
+        authorId: page.authorId
     });
 })
 
@@ -92,11 +112,11 @@ exports.deletePage = catchAsync(async (req, res, next) => {
 exports.deletePages = catchAsync(async (req, res, next) => {
     const ids = req.params.ids.split(',');
     const pages = await Page.find({ _id: { $in: ids } });
-    pages.forEach(page =>{
-        page.archived=true;
+    pages.forEach(page => {
+        page.archived = true;
         page.save();
     });
-    const authorIds = pages.map(page=>page.authorId)
+    const authorIds = pages.map(page => page.authorId)
 
     res.status(200).json({
         status: 'success',
