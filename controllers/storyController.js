@@ -66,7 +66,7 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
         const { langInfo } = req.body;
         const { level, language } = langInfo[Math.floor(Math.random() * langInfo.length)];
 
-        const stories = await Story.find({ language, open:true, authorId: { $ne: user._id } });
+        const stories = await Story.find({ language, open: true, authorId: { $ne: user._id } });
 
         const mappedStories = stories.map(story => {
             const { levels, _id } = story.toObject();
@@ -86,14 +86,14 @@ exports.getTributeData = catchAsync(async (req, res, next) => {
         }
 
         // Look for language && level match, exclude previous daily story
-        filteredStories = filteredStories.filter(story =>story._id!==user.markedStoryId);
+        filteredStories = filteredStories.filter(story => story._id !== user.markedStoryId);
         // look for language match, exclude previous daily story
-        if (filteredStories.length === 0) 
-        filteredStories = await Story.find({ language,open:true, _id: { $ne: user.markedStoryId } });
+        if (filteredStories.length === 0)
+            filteredStories = await Story.find({ language, open: true, _id: { $ne: user.markedStoryId } });
         // look for language match
-        if (filteredStories.length === 0) filteredStories = await Story.find({ language,open:true });
+        if (filteredStories.length === 0) filteredStories = await Story.find({ language, open: true });
         // look for anything
-        if (filteredStories.length === 0) filteredStories = await Story.find({open:true});
+        if (filteredStories.length === 0) filteredStories = await Story.find({ open: true });
         if (filteredStories.length === 0) return next(new AppError('Something went wrong, no stories found for the daily.', 500));
         storyId = filteredStories[Math.floor(Math.random() * filteredStories.length)]._id;
 
@@ -146,11 +146,15 @@ exports.editStory = catchAsync(async (req, res, next) => {
     })
 })
 
-exports.deleteStory = catchAsync(async (req, res, next) => {
-    await Story.findByIdAndDelete(req.params.id);
-    res.status(204).json({
+exports.openStory = catchAsync(async (req, res, next) => {
+    const story = await Story.findOneAndUpdate(
+        { _id: req.params.id },
+        { open: req.body.open },
+        { returnOriginal: false}
+    )
+    res.status(201).json({
         status: 'success',
-        data: null
+        story: mappedStory(story)
     })
 })
 

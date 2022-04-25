@@ -14,7 +14,7 @@ router.route('/')
 router.route('/one/:id')
     .get(storyController.getStory)
     .put(authCheck, ownStoryCheck, storyController.editStory)
-    .delete(authCheck, storyController.deleteStory);
+    .patch(authCheck,ownStoryCheck, storyController.openStory)
 router.route('/many/:authorId')
     .get(storyController.getStoryDataByAuthor)
 
